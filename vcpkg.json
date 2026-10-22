@@ -1,0 +1,8 @@
+{
+  "name": "items-service",
+  "version": "1.0.0",
+  "dependencies": [
+    "cpp-httplib",
+    "nlohmann-json"
+  ]
+}
