@@ -9,5 +9,8 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(httplib CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-add_executable(app src/main.cpp)
+add_executable(app
+    src/main.cpp
+    src/store.cpp
+)
 target_link_libraries(app PRIVATE httplib::httplib nlohmann_json::nlohmann_json)
