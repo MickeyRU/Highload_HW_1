@@ -9,6 +9,7 @@ services:
     environment:
       POD_ID: pod-1
       DATACENTER: dc-1
+      FAILURE_RATE: "0.05"
     ports:
       - "127.0.0.1:8080:8080"
     healthcheck:
@@ -26,6 +27,7 @@ services:
     environment:
       POD_ID: pod-2
       DATACENTER: dc-2
+      FAILURE_RATE: "0.05"
     ports:
       - "127.0.0.1:8081:8080"
     depends_on:

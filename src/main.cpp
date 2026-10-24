@@ -5,6 +5,7 @@
 #include <string>
 
 #include "exposition.hpp"
+#include "failure.hpp"
 #include "handlers.hpp"
 #include "http_metrics.hpp"
 #include "metrics.hpp"
@@ -25,6 +26,7 @@ int main() {
     Metrics metrics;
     httplib::Server svr;
     ItemStore store;
+    FailureInjector failures;
 
     svr.Get("/health", [](const httplib::Request&, httplib::Response& res) {
         res.status = 200;
@@ -46,7 +48,12 @@ int main() {
 
     svr.Get(R"(/items/(\d+))",
             WithMetrics(metrics, "GET", "/items/{id}",
-                        [&store](const httplib::Request& req, httplib::Response& res) {
+                        [&store, &failures](const httplib::Request& req, httplib::Response& res) {
+                            if (failures.ShouldFail()) {
+                                SendJson(res, 500, {{"error", "simulated failure"}});
+                                return;
+                            }
+
                             std::uint64_t id = std::stoull(req.matches[1]);
                             auto found = store.Get(id);
                             if (!found) {
@@ -56,26 +63,37 @@ int main() {
                             SendJson(res, 200, {{"id", found->id}, {"name", found->name}});
                         }));
 
-    svr.Post("/items", WithMetrics(metrics, "POST", "/items",
-                                   [&store](const httplib::Request& req, httplib::Response& res) {
-                                       json body;
-                                       try {
-                                           body = json::parse(req.body);
-                                       } catch (const json::parse_error&) {
-                                           SendJson(res, 400, {{"error", "invalid json"}});
-                                           return;
-                                       }
-                                       if (!body.contains("name") || !body["name"].is_string()) {
-                                           SendJson(res, 400, {{"error", "name is required"}});
-                                           return;
-                                       }
-                                       Item item = store.Create(body["name"].get<std::string>());
-                                       SendJson(res, 201, {{"id", item.id}, {"name", item.name}});
-                                   }));
+    svr.Post("/items",
+             WithMetrics(metrics, "POST", "/items",
+                         [&store, &failures](const httplib::Request& req, httplib::Response& res) {
+                             if (failures.ShouldFail()) {
+                                 SendJson(res, 500, {{"error", "simulated failure"}});
+                                 return;
+                             }
+
+                             json body;
+                             try {
+                                 body = json::parse(req.body);
+                             } catch (const json::parse_error&) {
+                                 SendJson(res, 400, {{"error", "invalid json"}});
+                                 return;
+                             }
+                             if (!body.contains("name") || !body["name"].is_string()) {
+                                 SendJson(res, 400, {{"error", "name is required"}});
+                                 return;
+                             }
+                             Item item = store.Create(body["name"].get<std::string>());
+                             SendJson(res, 201, {{"id", item.id}, {"name", item.name}});
+                         }));
 
     svr.Put(R"(/items/(\d+))",
             WithMetrics(metrics, "PUT", "/items/{id}",
-                        [&store](const httplib::Request& req, httplib::Response& res) {
+                        [&store, &failures](const httplib::Request& req, httplib::Response& res) {
+                            if (failures.ShouldFail()) {
+                                SendJson(res, 500, {{"error", "simulated failure"}});
+                                return;
+                            }
+
                             std::uint64_t id = std::stoull(req.matches[1]);
                             json body;
                             try {

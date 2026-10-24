@@ -15,6 +15,7 @@ add_executable(app
     src/store.cpp
     src/metrics.cpp
     src/exposition.cpp
+    src/failure.cpp
 )
 
 target_link_libraries(app PRIVATE 
