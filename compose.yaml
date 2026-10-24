@@ -87,6 +87,26 @@ services:
     restart: unless-stopped
     networks: [monitoring]
 
+  dashboard-generator:
+    image: python:3.13-slim
+    container_name: items-dashboard-generator
+    environment:
+      APP_URL: http://app1:8080
+      GRAFANA_URL: http://grafana:3000
+      GRAFANA_USER: ${GRAFANA_ADMIN_USER}
+      GRAFANA_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?Run cp .env.example .env and python3 scripts/configure.py}
+      PROMETHEUS_DS_UID: ${PROMETHEUS_DS_UID}
+    volumes:
+      - ./scripts:/scripts:ro
+    command: ["python3", "/scripts/generate_dashboard.py"]
+    depends_on:
+      app1:
+        condition: service_healthy
+      grafana:
+        condition: service_healthy
+    restart: "no"
+    networks: [monitoring]
+
 volumes:
   prometheus-data:
   grafana-data:
