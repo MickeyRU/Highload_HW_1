@@ -4,3 +4,4 @@ vcpkg_installed/
 .venv/
 .vscode/
 .DS_Store
+.cache/
