@@ -44,6 +44,18 @@ int main() {
         res.set_content(json{{"handlers", list}}.dump(), "application/json");
     });
 
+    svr.Get(R"(/items/(\d+))",
+            WithMetrics(metrics, "GET", "/items/{id}",
+                        [&store](const httplib::Request& req, httplib::Response& res) {
+                            std::uint64_t id = std::stoull(req.matches[1]);
+                            auto found = store.Get(id);
+                            if (!found) {
+                                SendJson(res, 404, {{"error", "not found"}});
+                                return;
+                            }
+                            SendJson(res, 200, {{"id", found->id}, {"name", found->name}});
+                        }));
+
     svr.Post("/items", WithMetrics(metrics, "POST", "/items",
                                    [&store](const httplib::Request& req, httplib::Response& res) {
                                        json body;

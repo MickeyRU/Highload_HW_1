@@ -10,8 +10,24 @@
 namespace {
 
 const prometheus::Histogram::BucketBoundaries& DurationBuckets() {
-    static const prometheus::Histogram::BucketBoundaries kBuckets{
-        0.0001, 0.00025, 0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1.0};
+    static const prometheus::Histogram::BucketBoundaries kBuckets{0.000002,  // 2 мкс
+                                                                  0.000005,  // 5 мкс
+                                                                  0.00001,   // 10 мкс
+                                                                  0.00002,   // 20 мкс
+                                                                  0.00005,   // 50 мкс
+                                                                  0.0001,    // 100 мкс
+                                                                  0.00025,   // 250 мкс
+                                                                  0.0005,    // 500 мкс
+                                                                  0.001,     // 1 мс
+                                                                  0.0025,    // 2.5 мс
+                                                                  0.005,     // 5 мс
+                                                                  0.01,      // 10 мс
+                                                                  0.025,     // 25 мс
+                                                                  0.05,      // 50 мс
+                                                                  0.1,       // 100 мс
+                                                                  0.25,      // 250 мс
+                                                                  0.5,       // 500 мс
+                                                                  1.0};      // 1 с
     return kBuckets;
 }
 
