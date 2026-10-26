@@ -9,7 +9,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         build-essential cmake ninja-build git curl zip unzip tar \
         pkg-config ca-certificates
 
-RUN git clone --depth 1 https://github.com/microsoft/vcpkg /opt/vcpkg \
+ARG VCPKG_COMMIT=67972e92edd181d433927b42d8ab4bfa52ac164a
+
+RUN git clone https://github.com/microsoft/vcpkg /opt/vcpkg \
+    && cd /opt/vcpkg && git checkout ${VCPKG_COMMIT} \
     && /opt/vcpkg/bootstrap-vcpkg.sh -disableMetrics
 
 ENV VCPKG_ROOT=/opt/vcpkg
