@@ -5,6 +5,7 @@ services:
     image: items-service:1.0.0
     build:
       context: .
+    pull_policy: build
     container_name: items-app1
     environment:
       POD_ID: pod-1
@@ -23,6 +24,9 @@ services:
 
   app2:
     image: items-service:1.0.0
+    build:
+      context: .
+    pull_policy: build
     container_name: items-app2
     environment:
       POD_ID: pod-2
